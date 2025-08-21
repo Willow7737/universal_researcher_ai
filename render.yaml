@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: universal-researcher-backend
+    env: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: universal-researcher-db
+          property: connectionString
+      - key: REDIS_URL
+        value: redis://<your_redis_instance>
+      - key: NEO4J_URI
+        value: <bolt://...>
+      - key: QDRANT_URL
+        value: <http://...>
+      - key: RABBITMQ_URL
+        value: amqp://...
+databases:
+  - name: universal-researcher-db
+    plan: free

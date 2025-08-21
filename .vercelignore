@@ -1,0 +1,12 @@
+# Ignore non-frontend services when deploying root
+backend/
+java_orchestrator/
+docker-compose.yml
+compose.yml
+compose.yaml
+*.iml
+*.log
+*.md
+*.MD
+*.yml
+*.yaml
