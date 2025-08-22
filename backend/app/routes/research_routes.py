@@ -14,7 +14,7 @@ class QueryIn(BaseModel):
     q: str
     limit: int = 8
 
-vec = VectorClient(host=os.getenv("QDRANT_HOST", "qdrant"), port=int(os.getenv("QDRANT_PORT", "6333")))
+vec = VectorClient(url=os.getenv('QDRANT_URL'), api_key=os.getenv('QDRANT_API_KEY')), port=int(os.getenv("QDRANT_PORT", "6333")))
 neo = Neo4jClient()
 
 @router.post("/seed_demo")
