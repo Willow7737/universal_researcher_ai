@@ -14,7 +14,11 @@ class QueryIn(BaseModel):
     q: str
     limit: int = 8
 
-vec = VectorClient(url=os.getenv('QDRANT_URL'), api_key=os.getenv('QDRANT_API_KEY')), port=int(os.getenv("QDRANT_PORT", "6333")))
+vec = VectorClient(
+    url=os.getenv('QDRANT_URL'),
+    api_key=os.getenv('QDRANT_API_KEY'),
+    port=int(os.getenv("QDRANT_PORT", "6333"))
+)
 neo = Neo4jClient()
 
 @router.post("/seed_demo")
@@ -38,5 +42,4 @@ def query(qin: QueryIn, user=Depends(deps.get_current_user)):
         raise HTTPException(status_code=400, detail="Empty query")
     results = vec.search(qin.q, limit=qin.limit)
     # enrich results with metadata from Postgres if available
-    return {"query": qin.q, "results": results}
-
+    return {"query": qin.q, "results": results} 
