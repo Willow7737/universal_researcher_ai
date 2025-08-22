@@ -8,10 +8,10 @@ DB_PASS = os.getenv("POSTGRES_PASSWORD", "admin")
 DB_NAME = os.getenv("POSTGRES_DB", "researchdb")
 DB_HOST = os.getenv("POSTGRES_HOST", "postgres")
 
-SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
+# use psycopg3 instead of psycopg2
+SQLALCHEMY_DATABASE_URL = f"postgresql+psycopg://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL, future=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, future=True)
 
 Base = declarative_base()
-
