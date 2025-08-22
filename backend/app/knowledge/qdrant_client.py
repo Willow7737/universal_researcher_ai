@@ -3,7 +3,7 @@ from qdrant_client.http import models as rest
 from typing import List, Dict
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
-import os
+
 
 class _TfidfEmbedder:
     def __init__(self):
@@ -18,9 +18,21 @@ class _TfidfEmbedder:
         X = self.vectorizer.transform(texts)
         return X.toarray().astype('float32')
 
+
 class VectorClient:
-    def __init__(self, host: str = "localhost", port: int = 6333, collection: str = "documents"):
-        self.client = QdrantClient(host=host, port=port)
+    def __init__(
+        self,
+        url: str = None,
+        host: str = None,
+        port: int = None,
+        collection: str = "documents",
+        api_key: str = None,
+    ):
+        if url:  # Qdrant Cloud
+            self.client = QdrantClient(url=url, api_key=api_key)
+        else:  # Local/self-hosted
+            self.client = QdrantClient(host=host, port=port, api_key=api_key)
+
         self.collection = collection
         self.embedder = _TfidfEmbedder()
         self._ensure_collection()
@@ -31,7 +43,7 @@ class VectorClient:
         except Exception:
             self.client.recreate_collection(
                 collection_name=self.collection,
-                vectors_config=rest.VectorParams(size=384, distance=rest.Distance.COSINE)
+                vectors_config=rest.VectorParams(size=384, distance=rest.Distance.COSINE),
             )
 
     def upsert(self, items: List[Dict]):
@@ -43,20 +55,19 @@ class VectorClient:
                 rest.PointStruct(
                     id=it["id"],
                     vector=vecs[i].tolist(),
-                    payload=it.get("metadata", {})
+                    payload=it.get("metadata", {}),
                 )
             )
         self.client.upsert(collection_name=self.collection, points=points)
 
     def search(self, query: str, limit: int = 5):
         qvec = self.embedder.encode([query])[0].tolist()
-        hits = self.client.search(collection_name=self.collection, query_vector=qvec, limit=limit)
+        hits = self.client.search(
+            collection_name=self.collection,
+            query_vector=qvec,
+            limit=limit,
+        )
         results = []
         for h in hits:
-            results.append({
-                "id": h.id,
-                "score": h.score,
-                "metadata": h.payload
-            })
+            results.append({"id": h.id, "score": h.score, "metadata": h.payload})
         return results
-
