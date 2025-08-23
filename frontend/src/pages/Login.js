@@ -14,7 +14,11 @@ export default function Login() {
     setErr(null);
     setLoading(true);
     try {
-      const r = await axios.post('/auth/login', { username, password });
+      const r = await axios.post(
+  '/auth/login',
+  { username, password },
+  { headers: { 'Content-Type': 'application/json' } }
+);
       localStorage.setItem('token', r.data.access_token);
       nav('/dashboard');
     } catch (e) {
