@@ -1,29 +1,22 @@
-from datetime import datetime, timedelta
-from jose import JWTError, jwt
-from passlib.context import CryptContext
-import os
+from fastapi import APIRouter, Depends, HTTPException, Body
+from sqlalchemy.orm import Session
+from pydantic import BaseModel
+from .. import models, auth, deps, database
 
-SECRET_KEY = os.getenv("SECRET_KEY", "SUPER_SECRET_DEV_KEY")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+class LoginRequest(BaseModel):
+    username: str
+    password: str
 
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
 
-def get_password_hash(password):
-    return pwd_context.hash(password)
-
-def create_access_token(data: dict, expires_delta: timedelta = None):
-    to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
-def decode_access_token(token: str):
-    try:
-        return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    except JWTError:
-        return None
-
+@router.post("/login", response_model=TokenResponse)
+def login(data: LoginRequest = Body(...), db: Session = Depends(database.SessionLocal)):
+    user = db.query(models.User).filter(models.User.username == data.username).one_or_none()
+    if not user or not auth.verify_password(data.password, user.password_hash):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    token = auth.create_access_token({"sub": user.username, "role": user.role})
+    return TokenResponse(access_token=token)
