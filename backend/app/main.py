@@ -6,8 +6,17 @@ from . import database, models, utils
 
 app = FastAPI(title="Universal Researcher AI - Backend")
 
-# Allow frontend local dev to connect
-origins = ["http://localhost:3000"]
+# Allow frontend(s) to connect
+origins_env = os.getenv("CORS_ORIGINS", "")
+origins = [o.strip() for o in origins_env.split(",") if o.strip()]
+
+# sensible defaults for local + your Vercel app
+if not origins:
+    origins = [
+        "http://localhost:3000",
+        "https://universalresearcherai.vercel.app",  # your frontend on Vercel
+    ]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
