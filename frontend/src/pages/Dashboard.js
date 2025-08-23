@@ -16,7 +16,7 @@ export default function Dashboard() {
       });
       setHealth(r.data);
     } catch (e) {
-      setHealth({ error: e.message });
+      setHealth({ error: e.response?.data?.detail || e.message });
     }
   }
 
