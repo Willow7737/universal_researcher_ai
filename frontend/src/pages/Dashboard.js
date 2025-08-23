@@ -1,33 +1,45 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from '../api';
 import AdminUsers from './AdminUsers';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-export default function Dashboard(){
+export default function Dashboard() {
   const [health, setHealth] = useState({});
-  useEffect(()=>{ fetchHealth(); }, []);
-  async function fetchHealth(){
-    try{
-      const r = await axios.get('/system/health', { headers: {...(axios.defaults.headers || {}), ...((localStorage.getItem('token'))?{Authorization:`Bearer ${localStorage.getItem('token')}`}:{})} });
+  const nav = useNavigate();
+
+  useEffect(() => { fetchHealth(); }, []);
+
+  async function fetchHealth() {
+    try {
+      const r = await axios.get('/system/health', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
       setHealth(r.data);
-    }catch(e){
-      setHealth({error: e.message});
+    } catch (e) {
+      setHealth({ error: e.message });
     }
   }
+
+  function logout(e) {
+    e.preventDefault();
+    localStorage.removeItem('token');
+    nav('/login');
+  }
+
   return (
     <div className="layout">
       <nav className="topnav">
         <div>URAID Dashboard</div>
         <div>
-          <Link to="/research">Research</Link> | <a href="#" onClick={()=>{localStorage.removeItem('token'); window.location='/login';}}>Logout</a>
+          <Link to="/research">Research</Link> |{" "}
+          <a href="#" onClick={logout}>Logout</a>
         </div>
       </nav>
       <main>
         <h1>System Health</h1>
         <pre>{JSON.stringify(health, null, 2)}</pre>
-        <AdminUsers/>
+        <AdminUsers />
       </main>
     </div>
   )
 }
-
