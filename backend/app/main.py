@@ -1,8 +1,8 @@
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routes import auth_routes, admin_routes, system_routes, research_routes
-from . import database, models, utils
+from app.routes import auth_routes, admin_routes, system_routes, research_routes
+from app import database, models
 
 app = FastAPI(title="Universal Researcher AI - Backend")
 
@@ -30,7 +30,7 @@ models.Base.metadata.create_all(bind=database.engine)
 
 # Bootstrap admin user if requested
 if os.getenv("BOOTSTRAP_ADMIN", "false").lower() in ("1", "true", "yes"):
-    from .crud import ensure_admin
+    from app.crud import ensure_admin
     ensure_admin(
         os.getenv("BOOTSTRAP_ADMIN_USERNAME", "admin"),
         os.getenv("BOOTSTRAP_ADMIN_PASSWORD", "admin")
