@@ -7,16 +7,24 @@ export default function Login() {
   const [password, setPassword] = useState('admin');
   const [err, setErr] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
+  const [isWakingUp, setIsWakingUp] = useState(false);
   const nav = useNavigate();
 
   async function submit(e) {
     e.preventDefault();
     setErr(null);
     setLoading(true);
+    setIsWakingUp(false);
+    
+    // Set a timeout to show "waking up" message if it takes too long
+    const wakeUpTimer = setTimeout(() => {
+      setIsWakingUp(true);
+    }, 5000);
     
     try {
       const response = await axios.post('/auth/login', { username, password });
+      
+      clearTimeout(wakeUpTimer);
       
       if (response.data.access_token) {
         localStorage.setItem('token', response.data.access_token);
@@ -27,18 +35,11 @@ export default function Login() {
         nav('/dashboard');
       }
     } catch (error) {
+      clearTimeout(wakeUpTimer);
       console.error('Login error:', error);
       
       if (error.code === 'ECONNABORTED') {
-        if (retryCount < 2) {
-          setRetryCount(retryCount + 1);
-          setErr(`Server is taking longer than expected to respond. Retrying... (${retryCount + 1}/3)`);
-          // Auto-retry after a delay
-          setTimeout(() => submit(e), 2000);
-          return;
-        } else {
-          setErr('Server is not responding. Please try again in a moment.');
-        }
+        setErr('Server is taking longer than expected to respond. Please try again in a moment.');
       } else if (error.response) {
         // Server responded with error status
         const { status, data } = error.response;
@@ -52,12 +53,13 @@ export default function Login() {
         }
       } else if (error.request) {
         // Request made but no response received
-        setErr('Network error. Please check your connection.');
+        setErr('Network error. Please check your connection and try again.');
       } else {
         setErr('An unexpected error occurred.');
       }
     } finally {
       setLoading(false);
+      setIsWakingUp(false);
     }
   }
 
@@ -66,6 +68,12 @@ export default function Login() {
       <form className="card" onSubmit={submit}>
         <h2>Login</h2>
         {err && <div className="err">{err}</div>}
+        {isWakingUp && (
+          <div className="info">
+            <p>Server is waking up... This might take a moment.</p>
+            <p>Please be patient or try again in a few seconds.</p>
+          </div>
+        )}
         <input 
           value={username} 
           onChange={e => setUsername(e.target.value)} 
@@ -84,11 +92,9 @@ export default function Login() {
         <button type="submit" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>
-        {retryCount > 0 && (
-          <p style={{fontSize: '0.8rem', marginTop: '10px'}}>
-            This might take a moment on the first request...
-          </p>
-        )}
+        <div style={{marginTop: '1rem', fontSize: '0.8rem', color: '#666'}}>
+          <p>Note: The server may take 30-60 seconds to wake up on first request.</p>
+        </div>
       </form>
     </div>
   );
