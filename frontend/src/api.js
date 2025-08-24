@@ -4,7 +4,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "https://universal-researc
 
 const instance = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000, // Increase timeout to 30 seconds for Render cold starts
+  timeout: 45000, // Increase timeout to 45 seconds for Render cold starts
   headers: {
     'Content-Type': 'application/json',
   },
@@ -17,6 +17,12 @@ instance.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Special handling for login requests - longer timeout
+    if (config.url === '/auth/login') {
+      config.timeout = 60000; // 60 seconds for login
+    }
+    
     return config;
   },
   (error) => {
