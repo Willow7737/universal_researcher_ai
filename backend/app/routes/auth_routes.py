@@ -5,7 +5,7 @@ from app import models, auth, database
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-# Define schemas directly in this file
+# Define the schemas directly in this file
 class LoginRequest(BaseModel):
     username: str
     password: str
@@ -19,7 +19,7 @@ def login(
     data: LoginRequest,
     db: Session = Depends(database.get_db)
 ):
-    user = db.query(models.User).filter(models.User.username == data.username).one_or_none()
+    user = db.query(models.User).filter(models.User.username == data.username).first()
     if not user or not auth.verify_password(data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
