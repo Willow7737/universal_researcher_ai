@@ -7,6 +7,7 @@ export default function Login() {
   const [password, setPassword] = useState('admin');
   const [err, setErr] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const nav = useNavigate();
 
   async function submit(e) {
@@ -29,7 +30,15 @@ export default function Login() {
       console.error('Login error:', error);
       
       if (error.code === 'ECONNABORTED') {
-        setErr('Request timeout. Please try again.');
+        if (retryCount < 2) {
+          setRetryCount(retryCount + 1);
+          setErr(`Server is taking longer than expected to respond. Retrying... (${retryCount + 1}/3)`);
+          // Auto-retry after a delay
+          setTimeout(() => submit(e), 2000);
+          return;
+        } else {
+          setErr('Server is not responding. Please try again in a moment.');
+        }
       } else if (error.response) {
         // Server responded with error status
         const { status, data } = error.response;
@@ -62,6 +71,7 @@ export default function Login() {
           onChange={e => setUsername(e.target.value)} 
           placeholder="username" 
           required
+          disabled={loading}
         />
         <input 
           type="password" 
@@ -69,10 +79,16 @@ export default function Login() {
           onChange={e => setPassword(e.target.value)} 
           placeholder="password" 
           required
+          disabled={loading}
         />
         <button type="submit" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>
+        {retryCount > 0 && (
+          <p style={{fontSize: '0.8rem', marginTop: '10px'}}>
+            This might take a moment on the first request...
+          </p>
+        )}
       </form>
     </div>
   );
