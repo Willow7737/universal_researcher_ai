@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -10,7 +10,24 @@ function Protected({ children }) {
   return token ? children : <Navigate to="/login" />;
 }
 
+// Function to keep backend warm
+const keepBackendWarm = () => {
+  setInterval(async () => {
+    try {
+      await fetch('https://universal-researcher-ai.onrender.com/system/health');
+      console.log('Backend health check - keeping warm');
+    } catch (error) {
+      console.log('Health check failed, backend might be spinning down');
+    }
+  }, 4 * 60 * 1000); // Ping every 4 minutes (less than Render's 5-minute timeout)
+};
+
 function App() {
+  useEffect(() => {
+    // Start keeping backend warm when app loads
+    keepBackendWarm();
+  }, []);
+
   const token = localStorage.getItem('token');
   return (
     <ErrorBoundary>
@@ -23,7 +40,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </ErrorBoundary>
-  )
+  );
 }
 
 export default App;
