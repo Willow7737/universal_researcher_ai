@@ -7,9 +7,12 @@ import os
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # JWT settings
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-here-change-in-production")
+SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+if not SECRET_KEY:
+    raise RuntimeError("SECRET_KEY is not set. Configure it in Render env.")
+
 
 def verify_password(plain_password, hashed_password):
     """Verify a plain password against a hashed password"""
