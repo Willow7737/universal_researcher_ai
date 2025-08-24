@@ -3,7 +3,7 @@ import os
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from .. import models, deps, database
+from app import models, deps, database
 from ..knowledge.qdrant_client import VectorClient
 from ..knowledge.neo4j_client import Neo4jClient
 import uuid
