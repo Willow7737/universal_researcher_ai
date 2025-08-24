@@ -1,16 +1,194 @@
-body{ font-family: Inter, Arial, sans-serif; margin:0; background:#f2f4f8; color:#1f2937;}
-.center{ display:flex; min-height:100vh; align-items:center; justify-content:center;}
-.card{ background:white; padding:16px; border-radius:8px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); margin:8px;}
-.err{ color:crimson; margin-bottom:8px;}
-input, select{ padding:8px; margin:4px; border:1px solid #e6e9ef; border-radius:6px;}
-button{ padding:8px 12px; margin:4px; border-radius:6px; background:#2563eb; color:white; border:none; cursor:pointer;}
-.layout{ display:flex; flex-direction:column; min-height:100vh;}
-.topnav{ display:flex; justify-content:space-between; padding:12px 24px; background:#0f172a; color:white;}
-main{ padding:24px; max-width:1000px; margin:0 auto; width:100%;}
-.row{ display:flex; align-items:center;}
-.users{ width:100%; border-collapse: collapse;}
-.users th, .users td{ text-align:left; padding:8px; border-bottom:1px solid #eee;}
-.results{ display:grid; grid-template-columns: repeat(auto-fill,minmax(300px,1fr)); gap:12px; margin-top:16px;}
-.result{ position:relative; }
-.result .score{ position:absolute; right:12px; top:12px; background:#f1f5f9; padding:6px 8px; border-radius:6px; font-weight:600;}
+body {
+  font-family: Inter, Arial, sans-serif;
+  margin: 0;
+  background: #f2f4f8;
+  color: #1f2937;
+  line-height: 1.5;
+}
 
+.center {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.card {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  margin: 8px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.err {
+  color: crimson;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #fff5f5;
+  border-radius: 6px;
+  border-left: 4px solid crimson;
+}
+
+.info {
+  background-color: #e6f7ff;
+  border-left: 4px solid #1890ff;
+  padding: 12px;
+  margin: 16px 0;
+  border-radius: 6px;
+  color: #0050b3;
+}
+
+.info p {
+  margin: 8px 0;
+}
+
+input, select {
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid #e6e9ef;
+  border-radius: 6px;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+button {
+  padding: 12px 16px;
+  margin: 8px 0;
+  border-radius: 6px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+button:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+}
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.topnav {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: #0f172a;
+  color: white;
+}
+
+.topnav a {
+  color: white;
+  text-decoration: none;
+  margin: 0 8px;
+}
+
+.topnav a:hover {
+  text-decoration: underline;
+}
+
+main {
+  padding: 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+  flex: 1;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.users {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+
+.users th, .users td {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.users th {
+  background: #f8fafc;
+  font-weight: 600;
+}
+
+.results {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.result {
+  position: relative;
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.result .score {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  background: #f1f5f9;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+/* Loading animation */
+.loading-dots {
+  display: inline-block;
+  margin-left: 8px;
+}
+
+.loading-dots::after {
+  content: '';
+  animation: dots 1.5s steps(5, end) infinite;
+}
+
+@keyframes dots {
+  0%, 20% { content: '.'; }
+  40% { content: '..'; }
+  60%, 100% { content: '...'; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .topnav {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .results {
+    grid-template-columns: 1fr;
+  }
+}
