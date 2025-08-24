@@ -1,7 +1,8 @@
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from . import database, models, auth
+from . import database, models
+from .security import decode_access_token  # Import from security instead of auth
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
@@ -13,7 +14,7 @@ def get_db():
         db.close()
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    payload = auth.decode_access_token(token)
+    payload = decode_access_token(token)  # Use the function from security
     if payload is None:
         raise HTTPException(status_code=401, detail="Invalid authentication")
     username = payload.get("sub")
@@ -26,4 +27,3 @@ def get_admin_user(current_user: models.User = Depends(get_current_user)):
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin privileges required")
     return current_user
-
