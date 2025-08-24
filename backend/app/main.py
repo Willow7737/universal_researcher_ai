@@ -6,9 +6,15 @@ from app import database, models
 
 app = FastAPI(title="Universal Researcher AI - Backend")
 
+@app.on_event("startup")
+def _startup_create_tables():
+    from app.database import Base, engine
+    Base.metadata.create_all(bind=engine)
+
+
 # Allow frontend(s) to connect
 origins_env = os.getenv("CORS_ORIGINS", "")
-origins = [o.strip() for o in origins_env.split(",") if o.strip()]
+origins = origins
 
 # If no environment variable set, default to production frontend and local dev
 if not origins:
