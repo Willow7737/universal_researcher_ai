@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from .. import database
+from app import database
 import requests, os
 
 router = APIRouter(prefix="/system", tags=["System"])
