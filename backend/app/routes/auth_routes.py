@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app import models, auth, database
@@ -9,8 +9,8 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/login", response_model=TokenResponse)
 def login(
-    data: LoginRequest = Body(...),
-    db: Session = Depends(database.SessionLocal)
+    data: LoginRequest,
+    db: Session = Depends(database.get_db)  # Use get_db instead of SessionLocal
 ):
     user = db.query(models.User).filter(models.User.username == data.username).one_or_none()
     if not user or not auth.verify_password(data.password, user.password_hash):
