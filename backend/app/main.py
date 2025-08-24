@@ -10,10 +10,11 @@ app = FastAPI(title="Universal Researcher AI - Backend")
 origins_env = os.getenv("CORS_ORIGINS", "")
 origins = [o.strip() for o in origins_env.split(",") if o.strip()]
 
-# If no environment variable set, default only to production frontend
+# If no environment variable set, default to production frontend and local dev
 if not origins:
     origins = [
         "https://universal-researcher-ai.vercel.app",  # your Vercel frontend
+        "http://localhost:3000",  # for local development
     ]
 
 app.add_middleware(
