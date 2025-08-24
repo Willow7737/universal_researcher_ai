@@ -1,26 +1,24 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 from app import database
-import requests, os
 
 router = APIRouter(prefix="/system", tags=["System"])
 
 @router.get("/health")
-def health_check():
-    # Basic checks (expand as needed)
-    status = {"status": "ok", "postgres": "up"}
-    # Qdrant
-    qhost = os.getenv("QDRANT_HOST", "qdrant")
-    qport = os.getenv("QDRANT_PORT", "6333")
+def health_check(db: Session = Depends(database.get_db)):
+    # Simplified health check to reduce response time
+    status = {"status": "ok"}
+    
+    # Check database connection
     try:
-        r = requests.get(f"http://{qhost}:{qport}/collections", timeout=2)
-        status["qdrant"] = "up" if r.status_code==200 else f"err:{r.status_code}"
+        db.execute("SELECT 1")
+        status["postgres"] = "up"
     except Exception as e:
-        status["qdrant"] = f"down:{str(e)}"
-    # Neo4j minimal
-    try:
-        status["neo4j"] = "up"
-    except:
-        status["neo4j"] = "pending"
-    status["rabbitmq"] = "unknown"
+        status["postgres"] = f"down: {str(e)}"
+    
+    # Skip other checks for now to reduce response time
+    status["qdrant"] = "check_skipped"  # Skip to reduce cold start time
+    status["neo4j"] = "check_skipped"
+    status["rabbitmq"] = "check_skipped"
+    
     return status
-
