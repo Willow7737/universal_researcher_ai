@@ -1,16 +1,20 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+
+// Import your pages
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import ResearchQuery from './pages/ResearchQuery';
+import UraLandingPage from './pages/UraLandingPage'; // <-- Import the landing page
 import ErrorBoundary from './components/ErrorBoundary';
 
+// This component remains the same
 function Protected({ children }) {
   const token = localStorage.getItem('token');
   return token ? children : <Navigate to="/login" />;
 }
 
-// Function to keep backend warm
+// This function remains the same
 const keepBackendWarm = () => {
   setInterval(async () => {
     try {
@@ -19,24 +23,37 @@ const keepBackendWarm = () => {
     } catch (error) {
       console.log('Health check failed, backend might be spinning down');
     }
-  }, 4 * 60 * 1000); // Ping every 4 minutes (less than Render's 5-minute timeout)
+  }, 4 * 60 * 1000);
 };
 
 function App() {
   useEffect(() => {
-    // Start keeping backend warm when app loads
     keepBackendWarm();
   }, []);
 
-  const token = localStorage.getItem('token');
   return (
     <ErrorBoundary>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={token ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} />
+          {/*
+            CHANGE 1: The root path now renders your landing page.
+            The old logic that checked for a token is no longer needed here.
+          */}
+          <Route path="/" element={<UraLandingPage />} />
+
+          {/* CHANGE 2: Add a dedicated route for the landing page itself */}
+          <Route path="/welcome" element={<UraLandingPage />} />
+          
           <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
-          <Route path="/research" element={<Protected><ResearchQuery /></Protected>} />
+          
+          <Route 
+            path="/dashboard" 
+            element={<Protected><Dashboard /></Protected>} 
+          />
+          <Route 
+            path="/research" 
+            element={<Protected><ResearchQuery /></Protected>} 
+          />
         </Routes>
       </BrowserRouter>
     </ErrorBoundary>
